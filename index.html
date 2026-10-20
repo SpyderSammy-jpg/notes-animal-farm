@@ -102,8 +102,16 @@
     color: #ff3b3b;
     font-size: clamp(26px, 6vw, 38px);
     font-weight: 900;
-    margin: 20px 0;
+    margin: 20px 0 12px;
     overflow-wrap: anywhere;
+  }
+
+  .exam-message {
+    color: #fff;
+    font-size: clamp(16px, 4vw, 20px);
+    font-weight: 700;
+    line-height: 1.5;
+    margin: 0 0 20px;
   }
 
   .small-text {
@@ -138,7 +146,6 @@
 <body>
 <div class="container">
 
-  <!-- Main screen -->
   <section id="homeScreen" class="screen active">
     <h1>Animal Farm Notes</h1>
     <p class="description">
@@ -146,7 +153,7 @@
     </p>
 
     <button class="red-button" id="openButton">
-      Your Copy
+      Animal Farm Notes: Your Copy
     </button>
 
     <p class="small-text">
@@ -154,9 +161,9 @@
     </p>
   </section>
 
-  <!-- First-time name selection -->
   <section id="pickerScreen" class="screen">
     <h1>Choose Your Copy</h1>
+
     <p class="description">
       Select your name to open your assigned notes.
       Your choice will be remembered on this browser.
@@ -169,9 +176,15 @@
     </button>
   </section>
 
-  <!-- Welcome screen -->
   <section id="welcomeScreen" class="screen">
-    <div class="welcome" id="welcomeMessage">Welcome!</div>
+    <div class="welcome" id="welcomeMessage">
+      Welcome!
+    </div>
+
+    <p class="exam-message">
+      Good luck on the Animal Farm Exam!
+    </p>
+
     <p class="description">
       Opening your personal Animal Farm notes...
     </p>
@@ -183,42 +196,43 @@
 (() => {
   "use strict";
 
-  /*
-    This is a browser-local name preference, not email verification.
-    To verify school email addresses securely, use an authenticated
-    service or a backend instead of trusting a name picker.
-  */
-
   const STORAGE_KEY = "animalFarmNotesChosenCopy_v1";
 
   const students = {
     "Tanuj": {
-      email: "2084123@jcpsnj.org",
       url: "https://docs.google.com/document/d/1m18fr7kzZElBLviR47IsSSuXQbcQas7kjkuwYhKlIt0/edit?tab=t.sapns71zh8up#heading=h.8bkyve5sdshv"
     },
+
     "Sharvesh": {
-      email: "208419@jcpsnj.org",
       url: "https://docs.google.com/document/d/1CFQbdRgCQnWEJAUXBlqXA12n9CGZ2IZ4WnRdK-iejkU/edit?tab=t.sapns71zh8up#heading=h.8bkyve5sdshv"
     },
+
     "Arav": {
-      email: "216871@jcpsnj.org",
       url: "https://docs.google.com/document/d/1URATum9mLUVK8PU7xdw13a7RUbQht5QBW7D5R5wDqnA/edit?tab=t.sapns71zh8up#heading=h.8bkyve5sdshv"
     },
+
     "Kevin": {
-      email: "208337@jcpsnj.org",
       url: "https://docs.google.com/document/d/1BbIM-dT6gZO3ftDyJnTVVRidvtj_m9ExlUtqLHx3qiQ/edit?tab=t.sapns71zh8up#heading=h.8bkyve5sdshv"
     },
+
     "Param": {
-      email: "207678@jcpsnj.org",
       url: "https://docs.google.com/document/d/1WWhc6CbH7YkYvxiBivSUZjHn8oVp-hGoAx2NC9x2AmM/edit?tab=t.sapns71zh8up#heading=h.8bkyve5sdshv"
     },
+
     "Tej": {
-      email: "207134@jcpsnj.org",
       url: "https://docs.google.com/document/d/1ekcWM8urOuhDLc0ICtJALzSBiwFMKZR5Ul13tQvsMoc/edit?tab=t.sapns71zh8up#heading=h.8bkyve5sdshv"
     },
+
     "Ojas": {
-      email: "226746@jcpsnj.org",
       url: "https://docs.google.com/document/d/1-QC7w13avURQyPkaYHebni1os71KSm2VFl7YaemD-Zw/edit?tab=t.sapns71zh8up#heading=h.8bkyve5sdshv"
+    },
+
+    "Lohith": {
+      url: "https://docs.google.com/document/d/1jIVtaAm1wg6Aq8Tmufvcnwq2v8FPeSHgql-cZTah6KU/edit?tab=t.sapns71zh8up#heading=h.8bkyve5sdshv"
+    },
+
+    "Arooban": {
+      url: "https://docs.google.com/document/d/1vWfNuNrQRuCPfLNqK9yVDZEcAkH2xECdcE6gATo_zro/edit?tab=t.sapns71zh8up#heading=h.8bkyve5sdshv"
     }
   };
 
@@ -233,7 +247,10 @@
   function getSavedStudent() {
     try {
       const savedName = localStorage.getItem(STORAGE_KEY);
-      return savedName && students[savedName] ? savedName : null;
+
+      return savedName && students[savedName]
+        ? savedName
+        : null;
     } catch {
       return null;
     }
@@ -248,28 +265,26 @@
     }
   }
 
-  /*
-    Open a blank tab immediately from the user's click.
-    Then navigate that tab after the welcome message appears.
-    This helps avoid popup blockers when embedded in Google Sites.
-  */
   function openStudentDocument(name) {
     const student = students[name];
+
     if (!student) return;
 
+    // Open a blank tab immediately to reduce popup-blocking issues.
     const destinationTab = window.open("about:blank", "_blank");
 
+    // Display the personalized welcome message.
+    $("welcomeMessage").textContent = "Welcome, " + name + "!";
     showScreen("welcomeScreen");
-    $("welcomeMessage").textContent = "Welcome " + name + "!";
 
+    // Wait 3 seconds before opening the student's document.
     window.setTimeout(() => {
       if (destinationTab && !destinationTab.closed) {
         destinationTab.location.href = student.url;
       } else {
-        // Fallback if the browser blocks opening a new tab.
         window.location.href = student.url;
       }
-    }, 2000);
+    }, 3000);
   }
 
   function buildNamePicker() {
@@ -278,6 +293,7 @@
 
     Object.keys(students).forEach(name => {
       const button = document.createElement("button");
+
       button.className = "name-button";
       button.type = "button";
       button.textContent = name;
